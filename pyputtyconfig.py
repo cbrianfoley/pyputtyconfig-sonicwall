@@ -43,7 +43,7 @@ print(os.path.dirname(full_path)+'\commands\\'+availablefiles[index])
 file = os.path.dirname(full_path)+'\commands\\'+availablefiles[index]
 
 #Get variables from user. These variables should exist in your commands file separated by varid (Example: +serno+)
-############BUG: These variables will be ran through eval() when coming into the script. Some characters will not work#################
+############BUG: These variables will be ran through eval() when coming into the script. Some characters will not work.#################
 olduser = input('\nEnter the current username of the Sonicwall:\n')
 oldpass = input('\nEnter the current password of the Sonicwall:\n')
 serno = input('\nEnter the serial number of the Sonicwall:\n')
@@ -53,6 +53,7 @@ newpass = input('\nEnter password-to-be of the new Sonicwall (Must be 8 characte
 lan = input('\nEnter the LAN IP to-be of the new Sonicwall:\n')
 
 #make the list of commands from the file
+############BUG: Variables will be ran through eval() when coming into the script. Some characters will not work.#################
 with open(file) as f:
         commands = []
         for line in f:
