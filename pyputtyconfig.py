@@ -42,7 +42,7 @@ index = int(input("\nEnter the number corresponding to the file you would like t
 print(os.path.dirname(full_path)+'\commands\\'+availablefiles[index])
 file = os.path.dirname(full_path)+'\commands\\'+availablefiles[index]
 
-#Get variables from user. These variables should exist in your commands file separated by '+' (Example: +serno+)
+#Get variables from user. These variables should exist in your commands file separated by varid (Example: +serno+)
 ############BUG: These variables will be ran through eval() when coming into the script. Some characters will not work#################
 olduser = input('\nEnter the current username of the Sonicwall:\n')
 oldpass = input('\nEnter the current password of the Sonicwall:\n')
