@@ -1,0 +1,14 @@
+config
+interface X1
+ip-assignment WAN dhcp
+exit
+management https
+management snmp
+management ping
+no https-redirect
+exit
+administration
+admin password old-password 'password' new-password '+str(newpass)+' confirm-password '+str(newpass)+'
+firewall-name +fwname+
+exit
+commit
