@@ -8,7 +8,7 @@ management ping
 no https-redirect
 exit
 administration
-admin password old-password 'password' new-password '+str(newpass)+' confirm-password '+str(newpass)+'
-firewall-name +fwname+
+firewall-name %firewall-name%
+admin password old-password '%old-password%' new-password '%new-password%' confirm-password '%confirm-password%'
 exit
 commit

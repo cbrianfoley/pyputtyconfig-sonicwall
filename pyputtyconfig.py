@@ -5,68 +5,49 @@ import time
 import serial.tools.list_ports
 import os
 
-#variable ID. Use this character to identify what a variable is in your command text file (Example: +serno+)
-varid = '+'
-
-#get available COM ports for serial connection
-def check_serial_port(name):
-    '''returns valid COM Port.'''
-    try:
-        cdc = next(serial.tools.list_ports.grep(name))
-        return cdc.__str__().split()[0]
-    except StopIteration:
-        msg = 'device {} not found. '.format(name)
-        msg += 'available devices are: '
-        ports = list(serial.tools.list_ports.comports())
-        for p in ports:
-            msg += '{},'.format(str(p))
-        raise ValueError(msg)
+#variable ID. Use this character to identify what a variable is in your command text file (Example: %serial_number%)
+varid = '%'
 
 #display available COM ports and ask user to select
-msg = 'Available COM devices are: \n'
+print('\nAvailable COM devices are: \n')
 ports = list(serial.tools.list_ports.comports())
 for p in ports:
-    msg += '\n{},'.format(str(p))
-print(msg)
-port = input('\nEnter COM port:\n')
-check_serial_port(port)
+    index = ports.index(p)
+    print(index, p)
+selectport = int(input('\nChoose a COM port:\n'))
+port = str(ports[selectport])
+port = port[:4]
 
 #display available config files and ask user to select
-print("\nAvailable config files:")
+print("\nAvailable config files:\n")
 full_path = os.path.realpath(__file__)
 availablefiles = list(os.listdir(os.path.dirname(full_path)+'\commands'))
 for i in availablefiles:
     index = availablefiles.index(i)
     print(index, i)
-index = int(input("\nEnter the number corresponding to the file you would like to use:\n"))
-print(os.path.dirname(full_path)+'\commands\\'+availablefiles[index])
-file = os.path.dirname(full_path)+'\commands\\'+availablefiles[index]
+selectfile = int(input("\nChoose the config file you would like to use:\n"))
+file = os.path.dirname(full_path)+'\commands\\'+availablefiles[selectfile]
 
-#Get variables from user. These variables should exist in your commands file separated by varid (Example: +serno+)
-############BUG: These variables will be ran through eval() when coming into the script. Some characters will not work.#################
-olduser = input('\nEnter the current username of the Sonicwall:\n')
-oldpass = input('\nEnter the current password of the Sonicwall:\n')
-serno = input('\nEnter the serial number of the Sonicwall:\n')
-activatekey = input('\nEnter the activation code of the Sonicwall (can be found on the device next to the serial number):\n')
-fwname = input('\nEnter the friendly firewall name (Must be 8 characters minimum):\n')
-newpass = input('\nEnter password-to-be of the new Sonicwall (Must be 8 characters minimum):\n')
-lan = input('\nEnter the LAN IP to-be of the new Sonicwall:\n')
+#prompt for old u/p
+print('\nPlease enter the current username and password to log into the Sonicwall')
+olduser = input('Username:\n')
+oldpass = input('Password:\n')
 
-#make the list of commands from the file
-############BUG: Variables will be ran through eval() when coming into the script. Some characters will not work.#################
+#parse and make the list of commands from the file, prompting for variables along the way
 with open(file) as f:
-        commands = []
-        for line in f:
-                line = line.replace('\n','')
-                line = line.replace(' ','{SPACE}')
-                if varid in line:
-                    line = line.split(varid)
-                    for idx, val in enumerate(line):
-                        if (idx % 2) == 1:
-                            line[idx] = eval(val)
-                    s = ""
-                    line = s.join(line)
-                commands.append(line)
+    commands = []
+    for line in f:
+        line = line.replace('\n','')
+        line = line.replace(' ','{SPACE}')
+        if varid in line:
+            line = line.split(varid) #use .split to separate into a list
+            for idx, val in enumerate(line):
+                if (idx % 2) == 1: #every other item in this list will be a variable, so prompt for its value
+                    val = str(input('Enter value for variable found in command file \"'+val+'\":'))
+                    line[idx] = val
+            s = ""
+            line = s.join(line)
+        commands.append(line)
 
 #create the PuTTY window and log in
 app = pywinauto.Application().start(cmd_line='putty.exe -serial '+port+' -sercfg 115200,8,1,n,N')
