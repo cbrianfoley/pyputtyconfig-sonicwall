@@ -8,15 +8,29 @@ import os
 #variable ID. Use this character to identify what a variable is in your command text file (Example: %serial_number%)
 varid = '%'
 
-#display available COM ports and ask user to select
-print('\nAvailable COM devices are: \n')
-ports = list(serial.tools.list_ports.comports())
-for p in ports:
-    index = ports.index(p)
-    print(index, p)
-selectport = int(input('\nChoose a COM port:\n'))
-port = str(ports[selectport])
-port = port[:4]
+print('''
+Select connection type: \n
+1)LAN
+2)Console
+''')
+
+select = int(input('Selection:'))
+while select != (1 or 2):
+    select = int(input('Please input a valid selection: '))
+
+if select is 1:
+    sship = str(input('Please enter the IP you wish to connect to: '))
+
+if select is 2:
+    #display available COM ports and ask user to select
+    print('\nAvailable COM devices are: \n')
+    ports = list(serial.tools.list_ports.comports())
+    for p in ports:
+        index = ports.index(p)
+        print(index, p)
+    selectport = int(input('\nChoose a COM port:\n'))
+    port = str(ports[selectport])
+    port = port[:4]
 
 #display available config files and ask user to select
 print("\nAvailable config files:\n")
@@ -50,21 +64,33 @@ with open(file) as f:
         commands.append(line)
 
 #create the PuTTY window and log in
-app = pywinauto.Application().start(cmd_line='putty.exe -serial '+port+' -sercfg 115200,8,1,n,N')
-putty = app.Putty
-putty.wait('ready')
-time.sleep(1)
-putty.type_keys('{ENTER}')
-time.sleep(1)
-putty.type_keys(olduser)
-putty.type_keys('{ENTER}')
-time.sleep(1)
-putty.type_keys(oldpass)
-putty.type_keys('{ENTER}')
-time.sleep(1)
+if select is 1:
+    app = pywinauto.Application().start(cmd_line='putty.exe -ssh '+olduser+'@'+sship+' 22')
+    putty = app.Putty
+    putty.wait('ready')
+    time.sleep(5)
+    putty.type_keys('{ENTER}')
+    time.sleep(1)
+    putty.type_keys(oldpass)
+    putty.type_keys('{ENTER}')
+    time.sleep(1)
+    
+if select is 2:
+    app = pywinauto.Application().start(cmd_line='putty.exe -serial '+port+' -sercfg 115200,8,1,n,N')
+    putty = app.Putty
+    putty.wait('ready')
+    time.sleep(1)
+    putty.type_keys('{ENTER}')
+    time.sleep(1)
+    putty.type_keys(olduser)
+    putty.type_keys('{ENTER}')
+    time.sleep(1)
+    putty.type_keys(oldpass)
+    putty.type_keys('{ENTER}')
+    time.sleep(1)
                 
 #type away
 for cmd in commands:
     putty.type_keys(cmd)
     putty.type_keys('{ENTER}')
-    time.sleep(.3)
+    time.sleep(.4)
